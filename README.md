@@ -1,4 +1,4 @@
-# WebtapuApp
+# Webtapu Extractor App
 
 WebtapuApp is a Flask-based web application for processing Turkish property documents (tapu belgeleri) and extracting structured data from PDF files. The application provides a user-friendly interface for uploading PDFs, processing them, and downloading the extracted data in Excel or CSV format.
 
