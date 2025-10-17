@@ -1,0 +1,375 @@
+{% extends "base.html" %}
+
+{% block title %}PDF İşleme - WebtapuApp{% endblock %}
+
+{% block content %}
+<div class="row" x-data="pdfProcessor()">
+    <div class="col-lg-8 mx-auto">
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold text-primary">WebtapuApp</h1>
+            <p class="lead">Türkçe tapu belgeleri için hızlı ve kontrollü PDF işleme akışı</p>
+        </div>
+
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h4 class="mb-0"><i class="fas fa-upload me-2"></i>PDF Dosyalarını Yükle</h4>
+                <span class="badge bg-light text-primary" x-text="files.length ? `${files.length} dosya seçildi` : 'Dosya seçilmedi'"></span>
+            </div>
+            <div class="card-body">
+                <form @submit.prevent="submit" novalidate>
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">PDF Dosyaları</label>
+                        <div class="upload-area"
+                             :class="{'border-success bg-light': files.length > 0, 'border-primary': isDragOver}"
+                             @click="openFilePicker"
+                             @dragover.prevent="isDragOver = true"
+                             @dragleave.prevent="isDragOver = false"
+                             @drop.prevent="handleDrop($event)">
+                            <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                            <h5 class="mb-1">Dosyaları buraya sürükleyin veya tıklayın</h5>
+                            <p class="text-muted mb-2">Sadece PDF formatı desteklenir</p>
+                            <input type="file"
+                                   x-ref="fileInput"
+                                   style="position: absolute; left: -9999px;"
+                                   accept=".pdf"
+                                   multiple
+                                   @change="handleFiles($event)">
+                        </div>
+                        <div class="mt-3" x-show="files.length" x-cloak>
+                            <div class="alert alert-info mb-0">
+                                <strong>Seçilen Dosyalar</strong>
+                                <ul class="mb-0 mt-2">
+                                    <template x-for="file in files" :key="file.name">
+                                        <li x-text="`${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`"></li>
+                                    </template>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label for="output_format" class="form-label fw-bold">Çıktı Formatı</label>
+                            <select id="output_format" class="form-select" x-model="outputFormat">
+                                <option value="excel">Excel (.xlsx)</option>
+                                <option value="csv">CSV (.csv)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit"
+                                class="btn btn-success btn-lg"
+                                :disabled="!canSubmit"
+                                x-text="isProcessing ? 'İşleniyor...' : 'PDFleri İşle'">
+                        </button>
+                        <button type="button"
+                                class="btn btn-outline-secondary"
+                                @click="reset"
+                                x-show="files.length && !isProcessing">
+                            Seçimi Temizle
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <template x-if="isProcessing">
+            <div class="card shadow mt-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0 text-primary">
+                            <i class="fas fa-spinner fa-spin me-2"></i>İşleme Devam Ediyor
+                        </h5>
+                        <span class="badge bg-primary" x-text="`${progress}%`"></span>
+                    </div>
+                    <div class="progress" style="height: 1.5rem;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated"
+                             role="progressbar"
+                             :style="`width: ${progress}%;`"
+                             :aria-valuenow="progress"
+                             aria-valuemin="0"
+                             aria-valuemax="100">
+                        </div>
+                    </div>
+                    <p class="mt-3 mb-0 text-muted" x-text="statusMessage"></p>
+                </div>
+            </div>
+        </template>
+
+        <template x-if="logs.length">
+            <div class="card shadow mt-4">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0 text-uppercase text-muted">İlerleme Günlüğü</h6>
+                </div>
+                <div class="card-body" style="max-height: 240px; overflow-y: auto;">
+                    <template x-for="(log, index) in logs" :key="index">
+                        <div class="small font-monospace mb-1" x-text="log"></div>
+                    </template>
+                </div>
+            </div>
+        </template>
+
+        <template x-if="errorMessage">
+            <div class="alert alert-danger mt-4" x-text="errorMessage"></div>
+        </template>
+
+        <div class="row mt-5">
+            <div class="col-md-4 text-center">
+                <div class="feature-icon">
+                    <i class="fas fa-file-pdf fa-2x"></i>
+                </div>
+                <h5>PDF İşleme</h5>
+                <p class="text-muted">Tapu belgelerinden otomatik veri çıkarımı.</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="feature-icon">
+                    <i class="fas fa-table fa-2x"></i>
+                </div>
+                <h5>Esnek Çıktılar</h5>
+                <p class="text-muted">Excel ve CSV formatlarında hızla indirin.</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="feature-icon">
+                    <i class="fas fa-water fa-2x"></i>
+                </div>
+                <h5>Filigran Temizleme</h5>
+                <p class="text-muted">Filigranları otomatik temizleyerek veri netliği sağlayın.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Dialog -->
+    <div class="modal fade show" tabindex="-1" style="display: block;" x-show="showSuccess" x-cloak>
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title"><i class="fas fa-check-circle me-2"></i>İşlem Tamamlandı</h5>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-2 fw-bold" x-text="statusMessage"></p>
+                    <p class="text-muted mb-0">
+                        İndirme otomatik başlayacak. Sayfa kısa süre içinde yenilenecek.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <a :href="downloadUrl"
+                       class="btn btn-success"
+                       :download="downloadName || null">
+                        <i class="fas fa-download me-2"></i>Dosyayı İndir
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show" x-show="showSuccess" x-cloak></div>
+</div>
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('pdfProcessor', () => ({
+            files: [],
+            outputFormat: 'excel',
+            isProcessing: false,
+            progress: 0,
+            statusMessage: '',
+            logs: [],
+            errorMessage: '',
+            jobId: null,
+            eventSource: null,
+            showSuccess: false,
+            downloadUrl: '',
+            downloadName: '',
+            totalFiles: 0,
+            isDragOver: false,
+
+            get canSubmit() {
+                return this.files.length > 0 && !this.isProcessing;
+            },
+
+            openFilePicker() {
+                this.$refs.fileInput.click();
+            },
+
+            handleFiles(event) {
+                const selected = Array.from(event.target.files || []);
+                this.addFiles(selected);
+            },
+
+            handleDrop(event) {
+                const dropped = Array.from(event.dataTransfer.files || []);
+                this.addFiles(dropped);
+                this.isDragOver = false;
+            },
+
+            addFiles(fileList) {
+                const valid = fileList.filter(file => file.type === 'application/pdf' || file.name.endsWith('.pdf'));
+                if (valid.length !== fileList.length) {
+                    this.errorMessage = 'Sadece PDF dosyaları yükleyebilirsiniz.';
+                } else {
+                    this.errorMessage = '';
+                }
+                this.files = valid;
+            },
+
+            async submit() {
+                if (!this.canSubmit) {
+                    return;
+                }
+                this.isProcessing = true;
+                this.progress = 0;
+                this.statusMessage = 'İşlem başlatılıyor...';
+                this.logs = [];
+                this.errorMessage = '';
+
+                const formData = new FormData();
+                this.files.forEach(file => formData.append('pdf_files', file));
+                formData.append('output_format', this.outputFormat);
+
+                try {
+                    const response = await fetch('{{ url_for("api_process") }}', {
+                        method: 'POST',
+                        body: formData,
+                    });
+
+                    if (!response.ok) {
+                        const error = await response.json();
+                        throw new Error(error.message || 'İstek başarısız oldu.');
+                    }
+
+                    const data = await response.json();
+                    if (!data.success || !data.job_id) {
+                        throw new Error(data.message || 'İşlem başlatılamadı.');
+                    }
+                    this.jobId = data.job_id;
+                    this.statusMessage = 'İşlem kuyruğa alındı.';
+                    this.startProgressStream();
+                } catch (error) {
+                    this.errorMessage = error.message || 'Beklenmedik bir hata oluştu.';
+                    this.isProcessing = false;
+                }
+            },
+
+            startProgressStream() {
+                if (!this.jobId) return;
+
+                if (this.eventSource) {
+                    this.eventSource.close();
+                }
+
+                this.eventSource = new EventSource(`{{ url_for("api_progress", job_id="__JOB__") }}`.replace('__JOB__', this.jobId));
+
+                const appendLog = (message) => {
+                    if (!message) return;
+                    this.logs.push(message);
+                    if (this.logs.length > 100) {
+                        this.logs.shift();
+                    }
+                };
+
+                this.eventSource.addEventListener('queued', (event) => {
+                    const payload = JSON.parse(event.data);
+                    this.statusMessage = payload.message || 'İşlem kuyruğa eklendi.';
+                    appendLog(payload.message);
+                });
+
+                this.eventSource.addEventListener('start', (event) => {
+                    const payload = JSON.parse(event.data);
+                    this.totalFiles = payload.total || this.files.length;
+                    this.statusMessage = payload.message || 'İşlem başlatıldı.';
+                    appendLog(payload.message);
+                });
+
+                this.eventSource.addEventListener('progress', (event) => {
+                    const payload = JSON.parse(event.data);
+                    this.progress = payload.percent || 0;
+                    this.statusMessage = payload.message || 'İşleniyor...';
+                    appendLog(payload.message);
+                });
+
+                this.eventSource.addEventListener('complete', (event) => {
+                    const payload = JSON.parse(event.data);
+                    appendLog(payload.message);
+                });
+
+                this.eventSource.addEventListener('output_ready', (event) => {
+                    const payload = JSON.parse(event.data);
+                    appendLog(payload.message);
+                });
+
+                this.eventSource.addEventListener('finished', (event) => {
+                    const payload = JSON.parse(event.data);
+                    this.progress = 100;
+                    this.statusMessage = payload.message || 'İşlem tamamlandı.';
+                    this.downloadUrl = payload.download_url || '';
+                    this.downloadName = payload.download_name || '';
+                    this.isProcessing = false;
+                    this.showSuccess = true;
+                    appendLog(payload.message);
+
+                    if (this.eventSource) {
+                        this.eventSource.close();
+                        this.eventSource = null;
+                    }
+
+                    if (this.downloadUrl) {
+                        const link = document.createElement('a');
+                        link.href = this.downloadUrl;
+                        if (this.downloadName) {
+                            link.download = this.downloadName;
+                        }
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    }
+
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 3000);
+                });
+
+                this.eventSource.addEventListener('error', (event) => {
+                    try {
+                        const payload = JSON.parse(event.data);
+                        this.errorMessage = payload.message || 'İşleme sırasında hata oluştu.';
+                        appendLog(payload.message);
+                    } catch (e) {
+                        this.errorMessage = 'İşleme sırasında hata oluştu.';
+                        appendLog(this.errorMessage);
+                    }
+                    this.isProcessing = false;
+                    if (this.eventSource) {
+                        this.eventSource.close();
+                        this.eventSource = null;
+                    }
+                });
+            },
+
+            reset() {
+                this.files = [];
+                this.progress = 0;
+                this.statusMessage = '';
+                this.logs = [];
+                this.errorMessage = '';
+                this.jobId = null;
+                this.showSuccess = false;
+                this.downloadUrl = '';
+                this.downloadName = '';
+                if (this.eventSource) {
+                    this.eventSource.close();
+                    this.eventSource = null;
+                }
+                if (this.$refs.fileInput) {
+                    this.$refs.fileInput.value = '';
+                }
+            },
+
+            destroy() {
+                if (this.eventSource) {
+                    this.eventSource.close();
+                }
+            }
+        }));
+    });
+</script>
+{% endblock %}

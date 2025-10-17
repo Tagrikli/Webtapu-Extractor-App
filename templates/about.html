@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Hakkında - WebtapuApp{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold text-primary">WebtapuApp Hakkında</h1>
+            <p class="lead">Türkçe Tapu Belgeleri için Gelişmiş PDF İşleme Çözümü</p>
+        </div>
+
+        <!-- About Content -->
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4 class="text-primary mb-4">Özellikler</h4>
+                        <ul class="list-unstyled">
+                            <li class="mb-3">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <strong>Otomatik Veri Çıkarma:</strong> Tapu belgelerinden mülkiyet bilgileri, haciz kayıtları ve icra dosya numaraları
+                            </li>
+                            <li class="mb-3">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <strong>Türkçe Metin İşleme:</strong> ICU kütüphanesi ile Türkçe karakter desteği ve metin normalleştirme
+                            </li>
+                            <li class="mb-3">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <strong>Filigran Temizleme:</strong> Otomatik filigran kaldırma özelliği
+                            </li>
+                            <li class="mb-3">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <strong>Çoklu Çıktı Formatı:</strong> Excel, CSV ve metin formatlarında çıktı oluşturma
+                            </li>
+                            <li class="mb-3">
+                                <i class="fas fa-check text-success me-2"></i>
+                                <strong>Toplu İşleme:</strong> Birden fazla PDF dosyasını aynı anda işleme
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h4 class="text-primary mb-4">Desteklenen Veriler</h4>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">• Taşınmaz kimlik numarası</li>
+                            <li class="mb-2">• İl, ilçe, mahalle bilgileri</li>
+                            <li class="mb-2">• Ada, parsel, blok bilgileri</li>
+                            <li class="mb-2">• Kat ve daire numaraları</li>
+                            <li class="mb-2">• Haciz türleri ve açıklamaları</li>
+                            <li class="mb-2">• İcra dairesi bilgileri</li>
+                            <li class="mb-2">• Dosya numaraları ve tarihler</li>
+                            <li class="mb-2">• Yevmiye numaraları</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <h4 class="text-primary mb-3">Teknoloji Stack</h4>
+                        <div class="row">
+                            <div class="col-6">
+                                <h6>Backend</h6>
+                                <ul class="small">
+                                    <li>Flask</li>
+                                    <li>Pandas</li>
+                                    <li>Camelot</li>
+                                    <li>PyMuPDF</li>
+                                    <li>PyICU</li>
+                                </ul>
+                            </div>
+                            <div class="col-6">
+                                <h6>Frontend</h6>
+                                <ul class="small">
+                                    <li>Bootstrap 5</li>
+                                    <li>HTML5</li>
+                                    <li>JavaScript</li>
+                                    <li>FontAwesome</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h4 class="text-primary mb-3">Kullanım Talimatları</h4>
+                        <ol class="small">
+                            <li class="mb-2">Ana sayfadan PDF dosyalarınızı yükleyin</li>
+                            <li class="mb-2">İstediğiniz çıktı formatını seçin (Excel, CSV veya Metin)</li>
+                            <li class="mb-2">Filigran temizleme seçeneğini ayarlayın</li>
+                            <li class="mb-2">"PDF'leri İşle" butonuna tıklayın</li>
+                            <li class="mb-2">İşlem tamamlandığında dosya otomatik olarak indirilecek</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="alert alert-info">
+                    <h5><i class="fas fa-info-circle me-2"></i>Önemli Notlar</h5>
+                    <ul class="mb-0">
+                        <li>Desteklenen PDF formatı: Türkçe tapu belgeleri ve haciz kayıtları</li>
+                        <li>Maksimum dosya boyutu: 100MB</li>
+                        <li>İşlem süresi dosya sayısına ve boyutuna göre değişiklik gösterebilir</li>
+                        <li>Çıktı dosyaları geçici olarak sunucuda saklanır ve otomatik olarak silinir</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Support Section -->
+        <div class="text-center mt-5">
+            <h4 class="text-primary mb-3">Sorularınız mı var?</h4>
+            <p class="text-muted">Uygulama ile ilgili sorularınız veya önerileriniz için lütfen iletişime geçin.</p>
+            <button class="btn btn-outline-primary" onclick="alert('İletişim bilgileri yakında eklenecek.')">
+                <i class="fas fa-envelope me-2"></i>İletişim
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
