@@ -12,7 +12,6 @@ ENV/
 # uv dependencies and build artifacts
 .uv/
 uv.lock
-.python-version
 
 # IDE and editor files
 .vscode/
