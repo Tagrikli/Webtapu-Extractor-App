@@ -3,7 +3,7 @@ name = "webtapuapp"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 dependencies = [
     "beautifulsoup4>=4.14.2",
     "camelot-py>=1.0.9",
@@ -12,7 +12,7 @@ dependencies = [
     "pandas>=2.3.3",
     "pdfplumber>=0.11.7",
     "pyicu>=2.15.3",
-    "pymupdf>=1.26.5",
+    "pymupdf>=1.26.4",
     "regex>=2025.9.18",
     "requests>=2.32.5",
     "tqdm>=4.67.1",
